@@ -17,72 +17,69 @@ class CotacaoHistoricaReader:
         return self._rows
 
     @classmethod
-    def get_data_pregao(cls, row: list[str]) -> date:
+    def get_str(cls, row: list[str], begin: int, len: int) -> str:
         string: str = row[0]
         if string[0:2] == '01':
-            value: date = datetime.strptime(string[2:(2 + 8)].strip(), '%Y%m%d').date()
-            return value
+            return string[begin:(begin + len)].strip()
         return None
+
+    @classmethod
+    def get_int(cls, row: list[str], begin: int, len: int) -> int:
+        string: str = row[0]
+        if string[0:2] == '01':
+            return int(string[begin:(begin + len)].strip())
+        return None
+    
+    @classmethod
+    def get_float(cls, row: list[str], begin: int, len: int) -> float:
+        string: str = row[0]
+        if string[0:2] == '01':
+            return float(string[begin:(begin + len)].strip()) / 100
+        return None
+
+    @classmethod
+    def get_date(cls, row: list[str], begin: int, len: int) -> date:
+        string: str = row[0]
+        if string[0:2] == '01':
+            return datetime.strptime(string[begin:(begin + len)].strip(), '%Y%m%d').date()
+        return None
+
+    @classmethod
+    def get_data_pregao(cls, row: list[str]) -> date:
+        return CotacaoHistoricaReader.get_date(row, 2, 8)
 
     @classmethod
     def get_cod_papel(cls, row: list[str]) -> str:
-        string: str = row[0]
-        if string[0:2] == '01':
-            return string[12:(12 + 12)].strip()
-        return None
+        return CotacaoHistoricaReader.get_str(row, 12, 12)
 
     @classmethod
     def get_empresa(cls, row: list[str]) -> str:
-        string: str = row[0]
-        if string[0:2] == '01':
-            value = string[27:(27 + 12)].strip()
-            return re.sub(r'(/EDJ)|(/ATZ)|(/ERJ)|(/ER)|(/EDB)|(/EDR)|(/EJS)|(/AT)|(/EJ)|(/ED)|(/EB)|(/EX)|(/EC)|( FM)', '', value).strip()
-        return None
+        value = CotacaoHistoricaReader.get_str(row, 27, 12)
+        return re.sub(
+            r'(/EDJ)|(/ATZ)|(/ERJ)|(/EDB)|(/EDR)|(/EJS)|(/EBG)|(/ER)|(/AT)|(/EJ)|(/ED)|(/EB)|(/EX)|(/EC)|(/ES)|( FM)',
+            '', value
+        ).strip()
 
     @classmethod
     def get_tipo_mercado(cls, row: list[str]) -> str:
-        string: str = row[0]
-        if string[0:2] == '01':
-            return string[24:(24 + 3)].strip()
-        return None
+        return CotacaoHistoricaReader.get_str(row, 24, 3)
 
     @classmethod
     def get_especificacao(cls, row: list[str]) -> str:
-        string: str = row[0]
-        if string[0:2] == '01':
-            return string[39:(39 + 3)].strip()
-        return None
+        return CotacaoHistoricaReader.get_str(row, 39, 3)
 
     @classmethod
     def get_preco_fechamento(cls, row: list[str]) -> float:
-        string: str = row[0]
-        if string[0:2] == '01':
-            value: float = float(string[108:(108 + 11)].strip())
-            value = value / 100
-            return value
-        return None
+        return CotacaoHistoricaReader.get_float(row, 108, 11)
 
     @classmethod
     def get_negocios(cls, row: list[str]) -> int:
-        string: str = row[0]
-        if string[0:2] == '01':
-            value: int = int(string[152:(152 + 18)].strip())           
-            return value
-        return None
+        return CotacaoHistoricaReader.get_int(row, 152, 18)
 
     @classmethod
     def get_preco_exercicio(cls, row: list[str]) -> float:
-        string: str = row[0]
-        if string[0:2] == '01':
-            value: float = float(string[188:(188 + 11)].strip())
-            value = value / 100
-            return value
-        return None
+        return CotacaoHistoricaReader.get_float(row, 188, 11)
 
     @classmethod
     def get_data_vencimento(cls, row: list[str]) -> date:
-        string: str = row[0]
-        if string[0:2] == '01':
-            value: date = datetime.strptime(string[201:(201 + 8)].strip(), '%Y%m%d').date()
-            return value
-        return None
+        return CotacaoHistoricaReader.get_date(row, 201, 8)
