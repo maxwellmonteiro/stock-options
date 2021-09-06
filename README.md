@@ -1,1 +1,1 @@
-Stock options simulator
+# Stock options simulator
