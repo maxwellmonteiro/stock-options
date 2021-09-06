@@ -10,7 +10,7 @@ class Singleton:
             return self._instance
 
     def __call__(self):
-        raise TypeError('Singleton. use Class.instance()')
+        raise TypeError('Singleton. Use Class.instance()')
 
     def __instancecheck__(self, instance):
         return isinstance(instance, self._cls)
