@@ -16,7 +16,6 @@ class Database:
             host=self._HOST, 
             port=3306
         )
-        pass
 
     def get_db(self):
         return self._db

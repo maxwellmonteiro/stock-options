@@ -17,31 +17,43 @@ class CotacaoHistoricaReader:
         return self._rows
 
     @classmethod
+    def is_header(cls, row: str):
+        return row[0:2] == '00'
+
+    @classmethod
+    def is_body(cls, row: str):
+        return row[0:2] == '01'
+
+    @classmethod
+    def is_trailer(cls, row: str):
+        return row[0:2] == '99'
+
+    @classmethod
     def get_str(cls, row: list[str], begin: int, len: int) -> str:
         string: str = row[0]
-        if string[0:2] == '01':
+        if CotacaoHistoricaReader.is_body(string):
             return string[begin:(begin + len)].strip()
         return None
 
     @classmethod
     def get_int(cls, row: list[str], begin: int, len: int) -> int:
         string: str = row[0]
-        if string[0:2] == '01':
-            return int(string[begin:(begin + len)].strip())
+        if CotacaoHistoricaReader.is_body(string):
+            return int(string[begin:(begin + len)])
         return None
     
     @classmethod
     def get_float(cls, row: list[str], begin: int, len: int) -> float:
         string: str = row[0]
-        if string[0:2] == '01':
-            return float(string[begin:(begin + len)].strip()) / 100
+        if CotacaoHistoricaReader.is_body(string):
+            return float(string[begin:(begin + len)]) / 100
         return None
 
     @classmethod
     def get_date(cls, row: list[str], begin: int, len: int) -> date:
         string: str = row[0]
-        if string[0:2] == '01':
-            return datetime.strptime(string[begin:(begin + len)].strip(), '%Y%m%d').date()
+        if CotacaoHistoricaReader.is_body(string):
+            return datetime.strptime(string[begin:(begin + len)], '%Y%m%d').date()
         return None
 
     @classmethod
@@ -70,7 +82,7 @@ class CotacaoHistoricaReader:
 
     @classmethod
     def get_preco_fechamento(cls, row: list[str]) -> float:
-        return CotacaoHistoricaReader.get_float(row, 108, 11)
+        return CotacaoHistoricaReader.get_float(row, 108, 13)
 
     @classmethod
     def get_negocios(cls, row: list[str]) -> int:
@@ -78,8 +90,8 @@ class CotacaoHistoricaReader:
 
     @classmethod
     def get_preco_exercicio(cls, row: list[str]) -> float:
-        return CotacaoHistoricaReader.get_float(row, 188, 11)
+        return CotacaoHistoricaReader.get_float(row, 188, 13)
 
     @classmethod
     def get_data_vencimento(cls, row: list[str]) -> date:
-        return CotacaoHistoricaReader.get_date(row, 201, 8)
+        return CotacaoHistoricaReader.get_date(row, 202, 8)
