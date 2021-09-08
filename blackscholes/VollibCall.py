@@ -1,4 +1,4 @@
-from BlackScholes import BlackScholes
+from blackscholes.BlackScholes import BlackScholes
 from py_vollib.black_scholes.greeks.analytical import delta, gamma, theta, vega, rho, d1, d2
 from py_vollib.black_scholes import black_scholes
 

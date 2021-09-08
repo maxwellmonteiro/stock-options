@@ -3,7 +3,7 @@ from math import log
 from math import sqrt
 
 class BlackScholes:
-    __QTD_DIAS_ANO = 252
+    __QTD_DIAS_ANO = 365
 
     def __init__(self, s, k, r, dias, v):
         self.s = s # preco acao
