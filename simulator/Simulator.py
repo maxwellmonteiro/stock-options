@@ -8,29 +8,29 @@ from util.Singleton import Singleton
 class Simulator:
 
     def __init__(self, datas_pregoes: list[date]):
-        self.datas_pregoes = datas_pregoes
-        self.strategy_observers: list[OperationStartObserver] = list()
-        self.managment_observers: list[OperationCloseObserver] = list()
+        self.__datas_pregoes = datas_pregoes
+        self.__start_observers: list[OperationStartObserver] = list()
+        self.__close_observers: list[OperationCloseObserver] = list()
 
-    def subscribe(self, strategy_observer: OperationStartObserver):
-        self.strategy_observers.append(strategy_observer)
+    def subscribe(self, start_observer: OperationStartObserver):
+        self.__start_observers.append(start_observer)
 
-    def subscribe(self, managment_observer: OperationCloseObserver):
-        self.managment_observers.append(managment_observer)
+    def subscribe(self, close_observer: OperationCloseObserver):
+        self.__close_observers.append(close_observer)
 
-    def unsubscribe(self, strategy_observer: OperationStartObserver):
-        self.strategy_observers.remove(strategy_observer)
+    def unsubscribe(self, start_observer: OperationStartObserver):
+        self.__start_observers.remove(start_observer)
 
-    def unsubscribe(self, managment_observer: OperationCloseObserver):
-        self.managment_observers.remove(managment_observer)
+    def unsubscribe(self, close_observer: OperationCloseObserver):
+        self.__close_observers.remove(close_observer)
 
     def run(self):
-        for pregao in self.pregoes:
-            self.process(pregao)
+        for data_pregao in self.__datas_pregoes:
+            self.process(data_pregao)
 
-    def process(self, pregao: Pregao):
-        for strategy in self.strategy_observers:
-            strategy.publish(pregao)
+    def process(self, data_pregao: date):
+        for observer in self.__start_observers:
+            observer.publish(data_pregao)
         
-        for managment in self.managment_observers:
-            managment.publish(pregao)
+        for observer in self.__close_observers:
+            observer.publish(data_pregao)
