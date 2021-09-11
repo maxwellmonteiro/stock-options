@@ -6,7 +6,7 @@ from model.BaseModel import BaseModel
 class Pregao(BaseModel):
 
     id = peewee.AutoField()
-    papel = peewee.ForeignKeyField(Papel, backref='pregoes', constraint_name='fk_pregao_papel')
+    papel: Papel = peewee.ForeignKeyField(Papel, backref='pregoes', constraint_name='fk_pregao_papel')
     data = peewee.DateField()
     preco_fechamento = peewee.FloatField()
     negocios = peewee.IntegerField()

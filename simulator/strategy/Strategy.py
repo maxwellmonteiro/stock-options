@@ -4,8 +4,9 @@ from simulator.operation.Operation import Operation
 
 class Strategy:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, ticker: str):
         self.__name = name
+        self.__ticker = ticker
 
     def has_operation(self, data_pregao: date) -> bool:
         pass
