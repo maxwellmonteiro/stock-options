@@ -2,7 +2,7 @@ from datetime import date
 
 class Trade:
     def __init__(self, ticker: str, size: int):
-        self.ticker: str = ticker
+        self.__ticker: str = ticker
         self.__size: int = size
         self.__val_open: float = None
         self.__val_close: float = None
