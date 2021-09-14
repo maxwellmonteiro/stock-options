@@ -1,43 +1,35 @@
 from datetime import date
-from typing import overload
-from simulator.observer.OperationCloseObserver import OperationCloseObserver
-from simulator.observer.OperationStartObserver import OperationStartObserver
-from multipledispatch import dispatch
+from simulator.observer.Observer import Observer
+from util.Singleton import Singleton
 
+@Singleton
 class Simulator:
 
-    def __init__(self, datas_pregoes: list[date]):
-        self.__datas_pregoes = datas_pregoes
-        self.__start_observers: list[OperationStartObserver] = list()
-        self.__close_observers: list[OperationCloseObserver] = list()
+    def __init__(self):
+        self.__operation_observers: list[Observer] = list()
+        self.__to_be_appended: list[Observer] = list()
+        self.__to_be_removed: list[Observer] = list()
 
-    @dispatch(OperationStartObserver)
-    def subscribe(self, start_observer: OperationStartObserver):
-        self.__start_observers.append(start_observer)
+    def subscribe(self, observer: Observer):
+        self.__to_be_appended.append(observer)
 
-    @dispatch(OperationCloseObserver)
-    def subscribe(self, close_observer: OperationCloseObserver):
-        self.__close_observers.append(close_observer)
+    def unsubscribe(self, observer: Observer):
+        self.__to_be_removed.append(observer)
 
-    @dispatch(OperationStartObserver)
-    def unsubscribe(self, start_observer: OperationStartObserver):
-        self.__start_observers.remove(start_observer)
+    def _update_observers(self):
+        for observer in self.__to_be_appended:
+            self.__operation_observers.append(observer)
+        for observer in self.__to_be_removed:
+            self.__operation_observers.remove(observer)
+        self.__to_be_appended.clear()
+        self.__to_be_removed.clear()
 
-    @dispatch(OperationCloseObserver)
-    def unsubscribe(self, close_observer: OperationCloseObserver):
-        self.__close_observers.remove(close_observer)
-
-    def run(self):
-        for data_pregao in self.__datas_pregoes:
+    def run(self, datas_pregoes: list[date]):
+        self._update_observers()
+        for data_pregao in datas_pregoes:
             self.process(data_pregao)
 
     def process(self, data_pregao: date):
-        for observer in self.__start_observers:
-            close_observer: OperationCloseObserver = observer.publish(data_pregao)
-            if close_observer != None:
-                self.subscribe(close_observer)
-        
-        for observer in self.__close_observers:
-            unsubscribe: bool = observer.publish(data_pregao)
-            if unsubscribe:
-                self.unsubscribe(observer)
+        for observer in self.__operation_observers:
+            observer.publish(data_pregao)
+        self._update_observers()

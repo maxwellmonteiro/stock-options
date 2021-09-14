@@ -11,5 +11,11 @@ class OperationPool:
     def add(self, operation: Operation):
         self.__operations.append(operation)
 
-    def find_by_strategy_state(self, strategy: str, state: int) -> Operation:        
-        return next((o for o in self.__operations if o.strategy.name == strategy and o.state == state), None)
+    def find_opened(self, operation: Operation) -> Operation:
+        return next((o for o in self.__operations if o == operation and not o.closed()), None)
+
+    def get_operations(self) -> list[Operation]:
+        return self.__operations
+
+    def get_opened(self) -> list[Operation]:
+        return list(filter(lambda o: not o.closed(), OperationPool.instance().get_operations()))

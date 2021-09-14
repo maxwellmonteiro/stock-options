@@ -23,18 +23,19 @@ class Strategy:
         pass
 
     def create_operation(self, data_pregao: date) -> Operation:
-        pass  
+        pass
 
-    def has_opened_operation(self) -> bool:
-        operation: Operation = OperationPool.instance().find_by_strategy_state(self.name, Operation.STATE_OPENED)
-        return operation != None
+    def has_opened_operation(self, operation: Operation) -> bool:
+        o: Operation = OperationPool.instance().find_opened(operation)
+        return o != None
 
     def open_operation(self, data_pregao: date) -> Operation:
-        if not self.has_opened_operation() and self.has_operation(data_pregao):
+        if self.has_operation(data_pregao):
             operation: Operation = self.create_operation(data_pregao)
-            operation.open(data_pregao)
-            OperationPool.instance().add(operation)
-            return operation
+            if not self.has_opened_operation(operation):
+                operation.open(data_pregao)
+                OperationPool.instance().add(operation)
+                return operation
         return None
 
     def close_operation(self, operation: Operation, data_pregao: date):

@@ -1,4 +1,5 @@
 import datetime
+from simulator.operation.OperationPool import OperationPool
 from model.Empresa import Empresa
 from model.Papel import Papel
 
@@ -57,14 +58,22 @@ class CoveredCallStrategy(Strategy):
             return True
         return False
 
+    def has_opened_operation(self, operation: Operation) -> bool:
+        operations: list[Operation] = OperationPool.instance().get_opened()
+        o = next((o for o in operations if o.pregao.data_vencimento == operation.pregao.data_vencimento), None)
+        return o != None
+
     def create_operation(self, data_pregao: date) -> Operation:
         pregao: Pregao = self.pregao
-        operation: Operation = Operation(self, 'Covered Call - date {} ticker {} strike {} exercise {}'
-            .format(data_pregao, pregao.papel.codigo, pregao.preco_exercicio, pregao.data_vencimento))
+        operation: Operation = Operation(self, 
+            '{} - date: {} ticker: {} strike: {} exercise: {}'.format(self.name, data_pregao, pregao.papel.codigo, pregao.preco_exercicio, pregao.data_vencimento),
+            pregao)
         operation.add_trade(pregao.papel.codigo, self.get_size())
         return operation
 
     def can_close_operation(self, operation: Operation, data_pregao: date) -> bool:
         trades: list[Trade] = operation.get_trades()
         pregao: Pregao = Pregao.select().join(Papel).where((Papel.codigo == trades[0].ticker) & (Pregao.data == data_pregao)).first()
-        return data_pregao >= (pregao.data_vencimento - BDay(1))
+        if pregao == None:
+            print('')
+        return data_pregao >= (pregao.data_vencimento - BDay(1)).date()

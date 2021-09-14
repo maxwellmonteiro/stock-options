@@ -23,3 +23,9 @@ class Trade:
 
     def profit(self) -> float:
         return (self.__val_close - self.__val_open) * self.__size
+
+    def __repr__(self) -> str:
+        return '{} => {} : {} @ {}\n{} => {} : {} @ {}'.format(
+            self.__ticker, self.__dt_open, self.__size, self.__val_open,
+            self.__ticker, self.__dt_close, -1 * self.__size, self.__val_close
+            )
