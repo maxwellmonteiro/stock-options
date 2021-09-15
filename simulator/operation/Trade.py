@@ -13,6 +13,14 @@ class Trade:
     def ticker(self) -> str:
         return self.__ticker
 
+    @property
+    def open_val(self) -> float:
+        return self.__val_open    
+
+    @property
+    def open_dt(self) -> date:
+        return self.__dt_open
+
     def open(self, data_pregao, val: float):
         self.__dt_open = data_pregao
         self.__val_open = val

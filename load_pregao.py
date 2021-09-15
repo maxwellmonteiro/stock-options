@@ -1,3 +1,4 @@
+import sys
 from model.Pregao import Pregao
 from peewee import DoesNotExist, IntegrityError
 from util.CotacaoHistoricaReader import CotacaoHistoricaReader as chr
@@ -17,7 +18,8 @@ def inserir_pregao(cod_papel, data, preco_fechamento, negocios, preco_exercicio,
         # pregao already exists, do nothing
         pass
 
-PATH = 'data/COTAHIST_A2021.TXT'
+PATH = sys.argv[1]  #'data/COTAHIST_A2020.TXT'
+print('PATH: {}'.format(PATH))
 filter = lambda r: Filter.filter_mercados(r) and Filter.filter_fii(r) and Filter.filter_empresa(r)
 reader = chr(PATH, filter)
 

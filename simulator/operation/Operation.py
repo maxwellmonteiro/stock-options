@@ -10,6 +10,7 @@ class Operation:
     STATE_CREATED = 0
     STATE_OPENED = 1
     STATE_CLOSED = 2
+    STATE_INVALIDATED = 3
 
     def __init__(self, strategy, name: str, pregao: Pregao):
         self.__strategy = strategy
@@ -53,11 +54,20 @@ class Operation:
             pregao: Pregao = self.load_pregao(trade.ticker, data_pregao)
             trade.open(data_pregao, pregao.preco_fechamento)
 
+    def close_safe(self, data_pregao: date, trade: Trade, pregao: Pregao):
+        if pregao != None:
+            trade.close(data_pregao, pregao.preco_fechamento)
+        else: 
+            trade.close(data_pregao, trade.open_val)
+            self.__state = Operation.STATE_INVALIDATED
+            print('{} invalidated'.format(trade.ticker))
+
     def close(self, data_pregao: date):
         self.__state = Operation.STATE_CLOSED
         for trade in self.__trades.values():
             pregao: Pregao = self.load_pregao(trade.ticker, data_pregao)
-            trade.close(data_pregao, pregao.preco_fechamento)
+            self.close_safe(data_pregao, trade, pregao)
+
 
     def profit(self) -> float:
         profit: float = 0.0

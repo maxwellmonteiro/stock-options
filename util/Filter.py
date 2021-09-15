@@ -5,7 +5,7 @@ class Filter:
 
     @classmethod
     def filter_mercados(cls, row: list[str]) -> bool:
-        TIPOS_MERCADOS = ['010', '070', '080', '012', '013'] # vista, call, put
+        TIPOS_MERCADOS = ['010', '070', '080'] # vista, call, put
         #tipo_mercados = ['012', '013'] # exercicio call, put
         return CotacaoHistoricaReader.get_tipo_mercado(row) in TIPOS_MERCADOS
 
@@ -20,7 +20,7 @@ class Filter:
     
     @classmethod
     def filter_empresa(cls, row: list[str]) -> bool:
-        empresas = ['PETROBRAS', 'PETR', 'PETRE']
+        empresas = ['PETROBRAS', 'PETR', 'PETRE', 'VALE', 'VALE', 'VALEE']
         return CotacaoHistoricaReader.get_empresa(row) in empresas
 
     @classmethod

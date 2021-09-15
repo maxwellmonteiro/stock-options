@@ -1,3 +1,4 @@
+import sys
 from peewee import DoesNotExist, IntegrityError
 from util.CotacaoHistoricaReader import CotacaoHistoricaReader as chr
 from util.Filter import Filter
@@ -15,7 +16,8 @@ def inserir_papel(empresa, codigo, tipo, especificacao):
         # papel already exists, do nothing
         pass
 
-PATH = 'data/COTAHIST_A2021.TXT'
+PATH = sys.argv[1] #'data/COTAHIST_A2020.TXT'
+print('PATH: {}'.format(PATH))
 filter_unique_papel = Filter.filter_unique(lambda r: chr.get_cod_papel(r))
 filter = lambda r: Filter.filter_mercados(r) and Filter.filter_fii(r) and Filter.filter_empresa(r) and filter_unique_papel(r)
 reader = chr(PATH, filter)
