@@ -14,4 +14,4 @@ class FirstOtmCreditSpreadCall(CreditSpreadStrategy):
         return data_pregao + timedelta(days=FirstOtmCreditSpreadCall.DIAS_VENCIMENTO_FIM)
 
     def get_quote_expression(self, quote: float) -> Expression:
-        return Pregao.preco_exercicio > (quote * 1.01)
+        return Pregao.preco_exercicio > (quote * 1.05)

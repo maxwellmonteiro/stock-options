@@ -14,6 +14,7 @@ class Papel(BaseModel):
     codigo = peewee.CharField(unique=True, max_length=12)
     tipo_mercado = peewee.CharField(max_length=10)
     especificacao = peewee.CharField(max_length=4)
+    tipo_opcao = peewee.CharField(max_length=10, null=True)
 
     @classmethod
     def get_tipo_mercado(cls, cod: str):
