@@ -35,8 +35,14 @@ class Operation:
     def pregao(self) -> Pregao:
         return self.__pregao
 
+    def opened(self) -> bool:
+        return self.state == Operation.STATE_OPENED
+
     def closed(self) -> bool:
         return self.state == Operation.STATE_CLOSED
+
+    def invalidated(self) -> bool:
+        return self.state == Operation.STATE_INVALIDATED
 
     def get_trades(self) -> list[Trade]:        
         return list(self.__trades.values())

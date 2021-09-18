@@ -32,7 +32,7 @@ class Strategy:
     def open_operation(self, data_pregao: date) -> Operation:
         if self.has_operation(data_pregao):
             operation: Operation = self.create_operation(data_pregao)
-            if not self.has_opened_operation(operation):
+            if operation and not self.has_opened_operation(operation):
                 operation.open(data_pregao)
                 OperationPool.instance().add(operation)
                 return operation

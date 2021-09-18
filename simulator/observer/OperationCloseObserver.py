@@ -12,7 +12,7 @@ class OperationCloseObserver(Observer):
 
     def publish(self, data_pregao: date):        
         self.__strategy.close_operation(self.__operation, data_pregao)
-        if self.__operation.state == Operation.STATE_CLOSED:
+        if not self.__operation.opened():
             S.Simulator.instance().unsubscribe(self)
 
     

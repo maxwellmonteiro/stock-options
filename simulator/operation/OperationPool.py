@@ -32,3 +32,10 @@ class OperationPool:
         total_count = len(self.get_closed())
         profit_count = len(list(filter(lambda o: o.profit() > 0.0, self.get_closed())))
         return profit_count / total_count
+
+    def get_profit_factor(self) -> float:
+        profits = map(lambda o: o.profit(), filter(lambda o: o.profit() > 0.0, self.get_closed()))
+        losses = map(lambda o: o.profit(), filter(lambda o: o.profit() < 0.0, self.get_closed()))
+        total_profit = reduce(lambda s, t: s + t, profits, 0)
+        total_losses = reduce(lambda s, t: s + t, losses, 0)
+        return abs(total_profit / total_losses)

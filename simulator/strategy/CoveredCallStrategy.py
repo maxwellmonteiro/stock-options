@@ -18,8 +18,8 @@ class CoveredCallStrategy(Strategy):
 
     def __init__(self, name: str, underlying_asset: str, empresa: str, especificacao: str):
         super().__init__(name, underlying_asset)
-        self.__empresa = empresa
-        self.__especificacao = especificacao
+        self._empresa = empresa
+        self._especificacao = especificacao
 
     def get_quote(self, ticker: str, data_pregao: date) -> float:
         query = Pregao.select().join(Papel).where((Papel.codigo == ticker) & (Pregao.data == data_pregao))
@@ -57,7 +57,7 @@ class CoveredCallStrategy(Strategy):
         return pregao
 
     def has_operation(self, data_pregao: date) -> bool:
-        pregao = self.get_candidate_operations(self.__empresa, self.__especificacao, CoveredCallStrategy.CALL, data_pregao)
+        pregao = self.get_candidate_operations(self._empresa, self._especificacao, CoveredCallStrategy.CALL, data_pregao)
         if pregao != None:
             self.pregao = pregao
             return True
@@ -82,7 +82,7 @@ class CoveredCallStrategy(Strategy):
         dias_vencimento = Pregao.select(fn.Count(Pregao.data)).join(Papel).where(
             (Papel.codigo == ticker) & (Pregao.data.between(data_pregao, data_vencimento))
             ).scalar()
-        return dias_vencimento <= 1
+        return dias_vencimento <= 2
 
     def can_close_by_loss(self, pregao: Pregao, operation: Operation) -> bool:
         trades: list[Trade] = operation.get_trades()
@@ -103,6 +103,6 @@ class CoveredCallStrategy(Strategy):
         return (
             self.can_close_by_profit(pregao) or 
             self.can_close_by_time(data_pregao, operation) or 
-          #  self.can_close_by_loss(pregao, operation) or
+            #self.can_close_by_loss(pregao, operation) or
             self.can_close_fail_safe(data_pregao, operation)
             )

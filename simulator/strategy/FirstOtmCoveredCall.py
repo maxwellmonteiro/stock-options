@@ -15,4 +15,4 @@ class FirstOtmCoveredCall(CoveredCallStrategy):
         return data_pregao + timedelta(days=FirstOtmCoveredCall.DIAS_VENCIMENTO_FIM)
 
     def get_quote_expression(self, quote: float) -> Expression:
-        return Pregao.preco_exercicio > quote
+        return Pregao.preco_exercicio > (quote * 1)
