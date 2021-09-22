@@ -1,3 +1,4 @@
+from simulator.strategy.FirstItmDebitSpreadCall import FirstItmDebitSpreadCall
 from simulator.strategy.BlackScholesCreditSpreadCall import BlackScholesCreditSpreadCall
 from simulator.util.VolatilityHandler import VolatilityHandler
 from simulator.observer.VolatilityObserver import VolatilityObserver
@@ -11,22 +12,25 @@ from simulator.strategy.FirstOtmCoveredCall import FirstOtmCoveredCall
 from model.Pregao import Pregao
 from simulator.operation.OperationPool import OperationPool
 
+TICKER = 'VALE3'
+EMPRESA = 'VALE'
+TIPO = 'ON'
+
 query = Pregao.select(fn.Distinct(Pregao.data)).order_by(Pregao.data)
 pregoes: list[date] = list()
 for row in query:
     pregoes.append(row.data)
 simulator: Simulator = Simulator.instance()
 #start_observer = OperationStartObserver(FirstOtmCoveredCall('Covered Call 1st OTM Petr4', 'PETR4', 'PETR', 'PN'))
-#start_observer = OperationStartObserver(FirstOtmCoveredCall('Covered Call 1st OTM Vale3', 'VALE3', 'VALE', 'ON'))
 #start_observer = OperationStartObserver(FivePercenteOtmCoveredCall('Covered Call 5% OTM Petr4', 'PETR4', 'PETR', 'PN'))
-#start_observer = OperationStartObserver(FivePercenteOtmCoveredCall('Covered Call 5% OTM Vale3', 'VALE3', 'VALE', 'ON'))
 #start_observer = OperationStartObserver(FirstOtmCreditSpreadCall('Credit Spread Call 1st OTM Petr4', 'PETR4', 'PETR', 'PN'))
-start_observer = OperationStartObserver(BlackScholesCreditSpreadCall('Credit Spread Call Black&Scholes OTM Petr4', 'PETR4', 'PETR', 'PN'))
+#start_observer = OperationStartObserver(BlackScholesCreditSpreadCall('Credit Spread Call Black&Scholes OTM Petr4', TICKER, EMPRESA, TIPO))
+start_observer = OperationStartObserver(FirstItmDebitSpreadCall('Debit Spread Call 1st OTM Petr4', TICKER, EMPRESA, TIPO))
 simulator.subscribe(start_observer)
 
-volatility_hander: VolatilityHandler = VolatilityHandler.instance()
-volatility_hander.set_ticker('VALE3')
-volatility_observer = VolatilityObserver(volatility_hander)
+volatility_handler: VolatilityHandler = VolatilityHandler.instance()
+volatility_handler.set_ticker(TICKER)
+volatility_observer = VolatilityObserver(volatility_handler)
 simulator.subscribe(volatility_observer)
 
 simulator.run(pregoes)

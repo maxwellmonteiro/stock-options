@@ -10,12 +10,13 @@ class Operation:
     STATE_CREATED = 0
     STATE_OPENED = 1
     STATE_CLOSED = 2
-    STATE_INVALIDATED = 3
+    STATE_INVALIDATED = 4
 
-    def __init__(self, strategy, name: str, pregao: Pregao):
+    def __init__(self, strategy, name: str, underlying_asset: str):
         self.__strategy = strategy
         self.__name = name
-        self.__pregao = pregao
+        self.__underlying_asset = underlying_asset
+        self.__pregoes: dict[str, Pregao] = dict()
         self.__trades: dict[str, Trade] = dict()
         self.__state = Operation.STATE_CREATED
 
@@ -32,8 +33,8 @@ class Operation:
         return self.__state
 
     @property
-    def pregao(self) -> Pregao:
-        return self.__pregao
+    def pregoes(self) -> list[Pregao]:
+        return list(self.__pregoes.values())
 
     def opened(self) -> bool:
         return self.state == Operation.STATE_OPENED
@@ -42,13 +43,14 @@ class Operation:
         return self.state == Operation.STATE_CLOSED
 
     def invalidated(self) -> bool:
-        return self.state == Operation.STATE_INVALIDATED
+        return self.state >= Operation.STATE_INVALIDATED
 
     def get_trades(self) -> list[Trade]:        
         return list(self.__trades.values())
 
-    def add_trade(self, ticker: str, size: int):
-        self.__trades[ticker] = Trade(ticker, size)
+    def add_trade(self, pregao: Pregao, size: int):
+        self.__pregoes[pregao.papel.codigo] = pregao
+        self.__trades[pregao.papel.codigo] = Trade(pregao.papel.codigo, size)
 
     def load_pregao(self, ticker: str, data_pregao: date):
         pregao: Pregao = Pregao.select().join(Papel).where((Papel.codigo == ticker) & (Pregao.data == data_pregao)).first()
@@ -60,13 +62,38 @@ class Operation:
             pregao: Pregao = self.load_pregao(trade.ticker, data_pregao)
             trade.open(data_pregao, pregao.preco_fechamento)
 
+    def get_pregao(self, data_pregao: date, ticker: str):
+        query = Pregao.select().join(Papel).where((Papel.codigo == ticker) & (Pregao.data == data_pregao))
+        pregao: Pregao = query.first()
+        return pregao
+
+    def get_valor_intrinseco(self, quote: float, exercicio: float) -> float:
+        delta = round(quote - exercicio, 2)
+        if delta < 0:
+            return 0
+        return delta
+
+    def exercise(self, data_pregao: date, trade: Trade) -> bool:
+        p: Pregao = self.get_pregao(data_pregao, self.__underlying_asset)
+        pregao = self.__pregoes[trade.ticker]
+        if p != None and pregao.data_vencimento == data_pregao:
+            vi = self.get_valor_intrinseco(p.preco_fechamento, pregao.preco_exercicio)
+            trade.close(data_pregao, vi)
+            return True
+        return False
+
+
     def close_safe(self, data_pregao: date, trade: Trade, pregao: Pregao):
         if pregao != None:
             trade.close(data_pregao, pregao.preco_fechamento)
         else: 
-            trade.close(data_pregao, trade.open_val)
-            self.__state = Operation.STATE_INVALIDATED
-            print('{} invalidated'.format(trade.ticker))
+            if self.exercise(data_pregao, trade):
+                self.__state |= Operation.STATE_CLOSED
+                print('{} exercised'.format(trade.ticker))
+            else:
+                trade.close(data_pregao, trade.open_val)
+                self.__state |= Operation.STATE_INVALIDATED
+                print('{} invalidated'.format(trade.ticker))
 
     def close(self, data_pregao: date):
         self.__state = Operation.STATE_CLOSED

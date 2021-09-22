@@ -26,11 +26,14 @@ class CreditSpreadStrategy(CoveredCallStrategy):
         if pregao and pregao_long_end:
             operation: Operation = Operation(self, 
                 '{}@{} : -{} strike: {} +{} strike: {}'.format(self.name, self.get_quote(self.ticker, data_pregao),pregao.papel.codigo, pregao.preco_exercicio, pregao_long_end.papel.codigo, pregao_long_end.preco_exercicio),
-                pregao)
-            operation.add_trade(pregao.papel.codigo, self.get_size())
-            operation.add_trade(pregao_long_end.papel.codigo, -1 * self.get_size())    
+                self.ticker)
+            operation.add_trade(pregao, self.get_size())
+            operation.add_trade(pregao_long_end, -1 * self.get_size())    
             return operation
         return None
 
     def can_close_by_loss(self, pregao: Pregao, operation: Operation) -> bool:
+        return False
+
+    def can_close_by_profit(self, pregao: Pregao) -> bool:
         return False

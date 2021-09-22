@@ -65,20 +65,21 @@ class CoveredCallStrategy(Strategy):
 
     def has_opened_operation(self, operation: Operation) -> bool:
         operations: list[Operation] = OperationPool.instance().get_opened()
-        o = next((o for o in operations if o.pregao.data_vencimento == operation.pregao.data_vencimento), None)
+        o = next((o for o in operations if o.pregoes[0].data_vencimento == operation.pregoes[0].data_vencimento), None)
         return o != None
 
     def create_operation(self, data_pregao: date) -> Operation:
         pregao: Pregao = self.pregao
         operation: Operation = Operation(self, 
             '{} - underlying asset: {}@{} date: {} ticker: {} strike: {} exercise: {}'.format(self.name, self.ticker, self.get_quote(self.ticker, data_pregao), data_pregao, pregao.papel.codigo, pregao.preco_exercicio, pregao.data_vencimento),
-            pregao)
-        operation.add_trade(pregao.papel.codigo, self.get_size())
+            pregao, 
+            self.ticker)
+        operation.add_trade(pregao, self.get_size())
         return operation
 
     def can_close_by_time(self, data_pregao: date, operation: Operation) -> bool:
         ticker = operation.get_trades()[0].ticker
-        data_vencimento: date = operation.pregao.data_vencimento
+        data_vencimento: date = operation.pregoes[0].data_vencimento
         dias_vencimento = Pregao.select(fn.Count(Pregao.data)).join(Papel).where(
             (Papel.codigo == ticker) & (Pregao.data.between(data_pregao, data_vencimento))
             ).scalar()
